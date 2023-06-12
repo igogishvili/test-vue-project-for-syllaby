@@ -16,7 +16,7 @@
 <script>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import _ from 'lodash';
+import _ from 'lodash'; 
 
 export default {
   name: 'SearchField',
