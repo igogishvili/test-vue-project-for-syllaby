@@ -1,0 +1,9 @@
+.products {
+    &__page_button {
+        cursor: pointer;
+
+        &:hover {
+            color: green;
+        }
+    }
+}

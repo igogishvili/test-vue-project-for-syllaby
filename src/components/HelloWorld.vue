@@ -1,58 +1,94 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div class="container products">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Title</th>
+          <th scope="col">Description</th>
+          <th scope="col">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in items.products" :key="item.id">
+          <product-view :product-title="item.title"
+                        :id="item.id"
+                        :description="item.description"
+                        :price="item.price"></product-view>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-center">
+      <div class="d-inline px-2 products__page_button" v-for="number in itemsPagesNumber" :key="number" @click="switchPage(number)">{{ number }}</div>
+    </div>
   </div>
 </template>
 
 <script>
+import { computed } from 'vue'; // Import the computed function
+import { useStore } from 'vuex';
+import axios from 'axios';
+
+import ProductView from './ProductView.vue';
+
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
+  setup() {
+    const store = useStore();
+    const searchQuery = computed(() => store.state.searchQuery);
+
+    return {
+      searchQuery,
+    };
+  },
+  data() {
+    return {
+      items: [],
+      itemsLimitOnPage: 10,
+      itemsPage: 1,
+      skipItems: 0,
+      itemsPagesNumber: 0,
+      error: null 
+    }; 
+  },
+  components: {
+    ProductView
+  },
+  mounted() {
+    this.fetchItems('', this.itemsLimitOnPage, this.skipItems);
+
+  },
+  watch: {
+    searchQuery(newValue) {
+      this.itemsPage = 1;
+      this.skipItems = 0;
+
+      this.fetchItems(newValue, this.itemsLimitOnPage, this.skipItems);
+    },
+  },
+  methods: {
+    fetchItems(q, limit, skip) {
+      console.log(q);
+
+      axios
+        .get('https://dummyjson.com/products/search?q=' + q + '&limit=' + limit + '&skip=' + skip)
+        .then(response => {
+          this.items = response.data;
+
+          this.itemsPagesNumber = Math.ceil(this.items.total / this.itemsLimitOnPage);
+        })
+        .catch(error => {
+          this.error = error.message;
+        });
+    },
+    switchPage(pageId) {
+      this.itemsPage = pageId;
+
+      this.skipItems = (this.itemsPage - 1) * this.itemsLimitOnPage;
+
+      this.fetchItems(this.searchQuery, this.itemsLimitOnPage, this.skipItems);
+    }
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
