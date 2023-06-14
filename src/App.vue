@@ -1,10 +1,10 @@
 <template>
   <SearchField />
-  <HelloWorld />
+  <Products />
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Products from './components/Products.vue'
 import SearchField from './components/SearchField.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
@@ -12,7 +12,7 @@ import "bootstrap"
 export default {
   name: 'App',
   components: {
-    HelloWorld,
+    Products,
     SearchField
   }
 }

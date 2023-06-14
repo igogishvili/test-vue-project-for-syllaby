@@ -2,7 +2,7 @@
   <th scope="row">{{ id }}</th>
   <td>{{ productTitle }}</td>
   <td>{{ description }}</td>
-  <td>{{ price }}</td>
+  <td>${{ price }}</td>
 </template>
 
 <script>
